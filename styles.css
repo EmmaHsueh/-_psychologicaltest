@@ -36,6 +36,12 @@ body {
     color: var(--color-text);
     overflow-x: hidden;
     min-height: 100vh;
+    position: relative;
+}
+
+html {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* ===============================
@@ -51,6 +57,7 @@ body {
     visibility: hidden;
     transition: opacity 0.8s ease, visibility 0.8s;
     overflow: hidden;
+    touch-action: pan-y pinch-zoom;
 }
 
 .scene.active {
@@ -923,27 +930,43 @@ body {
 }
 
 @media (max-width: 768px) {
-    /* 修正手機版滾動問題 */
-    .scene {
+    /* 修正手機版滾動問題 - 改用 absolute 定位 */
+    body {
         overflow-y: auto;
         overflow-x: hidden;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .scene {
+        position: absolute;
+        overflow-y: visible;
+        overflow-x: hidden;
+        height: auto;
+        min-height: 100vh;
         -webkit-overflow-scrolling: touch; /* iOS 平滑滾動 */
+        touch-action: pan-y pan-x pinch-zoom; /* 允許觸控滾動 */
+        will-change: transform; /* 優化渲染效能 */
     }
 
     /* 確保首頁在手機上可以滾動 */
     #intro-scene {
         align-items: flex-start;
         padding-top: 10vh;
+        padding-bottom: 5vh;
     }
 
     /* 確保結果頁在手機上可以滾動 */
     #result-scene {
         align-items: flex-start;
         padding: 2rem 0;
+        min-height: auto;
     }
 
     #question-scene {
         flex-direction: column;
+        height: auto;
+        min-height: 100vh;
     }
 
     .question-mirror {
@@ -1030,18 +1053,36 @@ body {
 
 @media (max-width: 480px) {
     /* 確保極小螢幕也能滾動 */
-    .scene {
+    body {
         overflow-y: auto;
+        height: auto;
+    }
+
+    .scene {
+        position: absolute;
+        overflow-y: visible;
         overflow-x: hidden;
+        height: auto;
+        min-height: 100vh;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y pan-x pinch-zoom;
+        will-change: transform;
     }
 
     /* 調整內容間距避免貼邊 */
     #intro-scene {
         padding: 5vh 1rem;
+        padding-bottom: 5vh;
     }
 
     #result-scene {
-        padding: 1.5rem 0;
+        padding: 1.5rem 0 3rem 0;
+        min-height: auto;
+    }
+
+    #question-scene {
+        height: auto;
+        min-height: 100vh;
     }
 
     .result-container {
