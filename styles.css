@@ -781,7 +781,8 @@ body {
 }
 
 .btn-share,
-.btn-retry {
+.btn-retry,
+.btn-home {
     padding: 1rem 2rem;
     font-size: 1.1rem;
     font-weight: 500;
@@ -813,6 +814,18 @@ body {
 .btn-retry:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-3px);
+}
+
+.btn-home {
+    color: var(--color-text);
+    background: rgba(74, 144, 226, 0.15);
+    border: 2px solid rgba(74, 144, 226, 0.5);
+}
+
+.btn-home:hover {
+    background: rgba(74, 144, 226, 0.25);
+    border-color: rgba(74, 144, 226, 0.7);
     transform: translateY(-3px);
 }
 
@@ -910,6 +923,25 @@ body {
 }
 
 @media (max-width: 768px) {
+    /* 修正手機版滾動問題 */
+    .scene {
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch; /* iOS 平滑滾動 */
+    }
+
+    /* 確保首頁在手機上可以滾動 */
+    #intro-scene {
+        align-items: flex-start;
+        padding-top: 10vh;
+    }
+
+    /* 確保結果頁在手機上可以滾動 */
+    #result-scene {
+        align-items: flex-start;
+        padding: 2rem 0;
+    }
+
     #question-scene {
         flex-direction: column;
     }
@@ -997,6 +1029,25 @@ body {
 }
 
 @media (max-width: 480px) {
+    /* 確保極小螢幕也能滾動 */
+    .scene {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* 調整內容間距避免貼邊 */
+    #intro-scene {
+        padding: 5vh 1rem;
+    }
+
+    #result-scene {
+        padding: 1.5rem 0;
+    }
+
+    .result-container {
+        padding: 1.5rem 1rem;
+    }
+
     .title {
         font-size: 2rem;
     }

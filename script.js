@@ -249,7 +249,8 @@ const elements = {
     resultShadow: document.getElementById('result-shadow'),
     resultSymbol: document.getElementById('result-symbol'),
     shareBtn: document.getElementById('share-btn'),
-    retryBtn: document.getElementById('retry-btn')
+    retryBtn: document.getElementById('retry-btn'),
+    homeBtn: document.getElementById('home-btn')
 };
 
 // ===============================
@@ -270,6 +271,7 @@ function init() {
     elements.startBtn.addEventListener('click', startQuiz);
     elements.retryBtn.addEventListener('click', resetQuiz);
     elements.shareBtn.addEventListener('click', shareResult);
+    elements.homeBtn.addEventListener('click', goToHomePage);
 }
 
 // ===============================
@@ -395,80 +397,256 @@ function showResult() {
 // 分享結果
 // ===============================
 function shareResult() {
+    // 顯示分享選項模態框
+    showShareModal();
+}
+
+// 顯示分享選項模態框
+function showShareModal() {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease-out;
+    `;
+
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 2.5rem;
+        border-radius: 20px;
+        max-width: 450px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    `;
+
+    const title = document.createElement('h3');
+    title.textContent = '分享你的結果';
+    title.style.cssText = `
+        color: #f0f0f5;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        text-align: center;
+    `;
+
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    `;
+
+    // Instagram 分享按鈕
+    const igBtn = createShareButton(
+        'Instagram',
+        '#E4405F',
+        `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="currentColor"/>
+        </svg>
+        `,
+        () => {
+            modal.remove();
+            shareToInstagram();
+        }
+    );
+
+    // Facebook 分享按鈕
+    const fbBtn = createShareButton(
+        'Facebook',
+        '#1877F2',
+        `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/>
+        </svg>
+        `,
+        () => {
+            modal.remove();
+            shareToFacebook();
+        }
+    );
+
+    // 複製文字按鈕
+    const copyBtn = createShareButton(
+        '複製文字',
+        '#4a90e2',
+        `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        `,
+        () => {
+            modal.remove();
+            copyResultToClipboard();
+        }
+    );
+
+    // 關閉按鈕
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '取消';
+    closeBtn.style.cssText = `
+        margin-top: 1rem;
+        padding: 0.8rem 2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: #f0f0f5;
+        cursor: pointer;
+        font-size: 1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+    `;
+
+    closeBtn.addEventListener('mouseover', () => {
+        closeBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+    });
+
+    closeBtn.addEventListener('mouseout', () => {
+        closeBtn.style.background = 'rgba(255, 255, 255, 0.05)';
+    });
+
+    closeBtn.addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+
+    buttonsContainer.appendChild(igBtn);
+    buttonsContainer.appendChild(fbBtn);
+    buttonsContainer.appendChild(copyBtn);
+
+    content.appendChild(title);
+    content.appendChild(buttonsContainer);
+    content.appendChild(closeBtn);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+}
+
+// 創建分享按鈕的輔助函數
+function createShareButton(text, color, iconSVG, onClick) {
+    const button = document.createElement('button');
+    button.style.cssText = `
+        padding: 1rem 1.5rem;
+        background: ${color};
+        border: none;
+        border-radius: 12px;
+        color: white;
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    `;
+
+    const icon = document.createElement('span');
+    icon.innerHTML = iconSVG;
+    icon.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = text;
+
+    button.appendChild(icon);
+    button.appendChild(textSpan);
+
+    button.addEventListener('mouseover', () => {
+        button.style.transform = 'translateY(-2px)';
+        button.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.3)';
+    });
+
+    button.addEventListener('mouseout', () => {
+        button.style.transform = 'translateY(0)';
+        button.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+    });
+
+    button.addEventListener('click', onClick);
+
+    return button;
+}
+
+// Instagram 分享功能
+function shareToInstagram() {
+    // Instagram 網頁版無法直接分享，複製文字讓用戶手動發布
+    copyResultToClipboard();
+    setTimeout(() => {
+        showToast('文字已複製！請到 Instagram 手動發布', true);
+    }, 800);
+}
+
+// Facebook 分享功能
+function shareToFacebook() {
     const resultType = Object.keys(answers).reduce((a, b) =>
         answers[a] > answers[b] ? a : b
     );
     const personality = personalityTypes[resultType];
 
-    const shareText = `我在「鏡中人格」測驗中是【${personality.name}】\n${personality.keyword}\n\n${personality.description}\n\n立即測試你的鏡中人格 👉`;
     const shareUrl = window.location.href;
-    const fullText = shareText + ' ' + shareUrl;
+    const shareText = `我在「鏡中人格」測驗中是【${personality.name}】\n${personality.keyword}`;
 
-    // 建立臨時提示訊息元素
-    function showToast(message, isSuccess = true) {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: ${isSuccess ? 'rgba(74, 144, 226, 0.95)' : 'rgba(232, 93, 78, 0.95)'};
-            color: white;
-            padding: 1.5rem 3rem;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            z-index: 10000;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            animation: toastIn 0.3s ease-out;
-        `;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.animation = 'toastOut 0.3s ease-out';
-            setTimeout(() => toast.remove(), 300);
-        }, 2500);
+    // 先複製文字到剪貼簿
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareText).catch(() => {});
     }
 
-    // 方法 1: 嘗試使用 Web Share API (行動裝置優先)
-    if (navigator.share && navigator.canShare && navigator.canShare({ text: shareText })) {
-        navigator.share({
-            title: '鏡中人格：探索你的另一面',
-            text: shareText,
-            url: shareUrl
-        }).then(() => {
-            showToast('✓ 分享成功！');
-        }).catch(err => {
-            if (err.name !== 'AbortError') {
-                // 如果不是使用者取消，嘗試其他方法
-                copyToClipboard(fullText, showToast);
-            }
-        });
-    }
-    // 方法 2: 嘗試使用 Clipboard API
-    else if (navigator.clipboard && navigator.clipboard.writeText) {
-        copyToClipboard(fullText, showToast);
-    }
-    // 方法 3: 使用傳統方法 (textarea + execCommand)
-    else {
-        fallbackCopy(fullText, showToast);
+    // Facebook 分享 URL（只能分享連結，無法自訂文字）
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+
+    // 在新視窗開啟 Facebook 分享
+    window.open(fbShareUrl, '_blank', 'width=600,height=500');
+
+    showToast('✓ 文字已複製，請在 Facebook 貼上', true);
+}
+
+// 複製結果文字到剪貼簿
+function copyResultToClipboard() {
+    const resultType = Object.keys(answers).reduce((a, b) =>
+        answers[a] > answers[b] ? a : b
+    );
+    const personality = personalityTypes[resultType];
+
+    const shareText = `我在「鏡中人格」測驗中是【${personality.name}】
+${personality.keyword}
+
+${personality.description}
+
+鏡中的陰影面：
+${personality.shadow}
+
+立即測試你的鏡中人格 👉 ${window.location.href}`;
+
+    // 嘗試使用 Clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareText)
+            .then(() => {
+                showToast('✓ 結果已複製到剪貼簿！', true);
+            })
+            .catch(() => {
+                // 如果失敗，使用傳統方法
+                fallbackCopyText(shareText);
+            });
+    } else {
+        // 使用傳統方法
+        fallbackCopyText(shareText);
     }
 }
 
-// Clipboard API 複製函數
-function copyToClipboard(text, callback) {
-    navigator.clipboard.writeText(text)
-        .then(() => {
-            callback('✓ 結果已複製到剪貼簿！');
-        })
-        .catch(() => {
-            // 如果 Clipboard API 失敗，使用傳統方法
-            fallbackCopy(text, callback);
-        });
-}
-
-// 傳統複製方法 (相容所有瀏覽器)
-function fallbackCopy(text, callback) {
+// 傳統複製方法（相容所有瀏覽器）
+function fallbackCopyText(text) {
     const textarea = document.createElement('textarea');
     textarea.value = text;
     textarea.style.cssText = `
@@ -485,101 +663,41 @@ function fallbackCopy(text, callback) {
         const successful = document.execCommand('copy');
 
         if (successful) {
-            callback('✓ 結果已複製到剪貼簿！');
+            showToast('✓ 結果已複製到剪貼簿！', true);
         } else {
-            // 最後的備援方案：顯示文字讓使用者手動複製
-            showManualCopy(text);
+            showToast('複製失敗，請手動複製', false);
         }
     } catch (err) {
-        showManualCopy(text);
+        showToast('複製失敗，請手動複製', false);
     } finally {
         document.body.removeChild(textarea);
     }
 }
 
-// 手動複製視窗
-function showManualCopy(text) {
-    const modal = document.createElement('div');
-    modal.style.cssText = `
+// 顯示提示訊息
+function showToast(message, isSuccess = true) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        animation: fadeIn 0.3s ease-out;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: ${isSuccess ? 'rgba(74, 144, 226, 0.95)' : 'rgba(232, 93, 78, 0.95)'};
+        color: white;
+        padding: 1.5rem 3rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        z-index: 10001;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: toastIn 0.3s ease-out;
     `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
 
-    const content = document.createElement('div');
-    content.style.cssText = `
-        background: #1a1a2e;
-        padding: 2rem;
-        border-radius: 16px;
-        max-width: 600px;
-        width: 90%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    `;
-
-    const title = document.createElement('h3');
-    title.textContent = '請手動複製以下內容';
-    title.style.cssText = `
-        color: #f0f0f5;
-        margin-bottom: 1rem;
-        font-size: 1.3rem;
-    `;
-
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.readOnly = true;
-    textArea.style.cssText = `
-        width: 100%;
-        height: 200px;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        color: #f0f0f5;
-        font-size: 1rem;
-        resize: none;
-        margin-bottom: 1rem;
-        font-family: inherit;
-    `;
-
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = '關閉';
-    closeBtn.style.cssText = `
-        padding: 0.8rem 2rem;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 8px;
-        color: #f0f0f5;
-        cursor: pointer;
-        font-size: 1rem;
-        width: 100%;
-    `;
-
-    closeBtn.addEventListener('click', () => modal.remove());
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-    });
-
-    // 自動選取文字
-    textArea.addEventListener('click', function() {
-        this.select();
-    });
-
-    content.appendChild(title);
-    content.appendChild(textArea);
-    content.appendChild(closeBtn);
-    modal.appendChild(content);
-    document.body.appendChild(modal);
-
-    // 自動選取文字
-    setTimeout(() => textArea.select(), 100);
+    setTimeout(() => {
+        toast.style.animation = 'toastOut 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 2500);
 }
 
 // ===============================
@@ -598,6 +716,13 @@ function resetQuiz() {
 
     // 回到首頁
     switchScene('result', 'intro');
+}
+
+// ===============================
+// 跳轉到首頁
+// ===============================
+function goToHomePage() {
+    window.location.href = 'https://emmahsueh.github.io/psychological-test_full-ver./';
 }
 
 // ===============================
